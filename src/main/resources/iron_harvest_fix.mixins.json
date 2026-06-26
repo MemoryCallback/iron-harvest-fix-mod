@@ -6,9 +6,9 @@
   "mixins": [
     "create.fluidFilling.FluidFillingBehaviourMixin",
     "create.fluidFilling.FluidManipulationBehaviourInvoker",
-    "create.thresholdSwitch.ThresholdSwitchTypeFixMixin",
-    "sophisticatedbackpacks.BackpackThresholdSwitchMixin",
-    "createStuffAdditions.BlockPickerRightclickedOnBlockProcedureMixin"
+    "create.thresholdSwitchType.ThresholdSwitchBlockEntityMixin",
+    "sophisticatedbackpacks.thresholdSwitchObserve.BackpackBlockEntityMixin",
+    "createStuffAdditions.blockPicker.BlockPickerRightclickedOnBlockProcedureMixin"
   ],
   "client": [
     "quark.modelLoad.TinyPotatoModelMixin"

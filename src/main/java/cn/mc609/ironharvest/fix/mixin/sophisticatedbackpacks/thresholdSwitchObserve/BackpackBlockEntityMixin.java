@@ -1,4 +1,4 @@
-package cn.mc609.ironharvest.fix.mixin.sophisticatedbackpacks;
+package cn.mc609.ironharvest.fix.mixin.sophisticatedbackpacks.thresholdSwitchObserve;
 
 import com.simibubi.create.content.redstone.thresholdSwitch.ThresholdSwitchObservable;
 import net.minecraft.network.chat.Component;
@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.Shadow;
  */
 @Mixin(value = BackpackBlockEntity.class, remap = false)
 @Implements(@Interface(iface = ThresholdSwitchObservable.class, prefix = "sbfix$"))
-public abstract class BackpackThresholdSwitchMixin {
+public abstract class BackpackBlockEntityMixin {
 
     @Shadow
     public abstract IBackpackWrapper getBackpackWrapper();

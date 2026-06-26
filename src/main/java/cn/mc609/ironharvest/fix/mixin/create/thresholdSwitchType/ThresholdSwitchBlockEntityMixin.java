@@ -1,4 +1,4 @@
-package cn.mc609.ironharvest.fix.mixin.create.thresholdSwitch;
+package cn.mc609.ironharvest.fix.mixin.create.thresholdSwitchType;
 
 import com.simibubi.create.content.redstone.thresholdSwitch.ThresholdSwitchBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * 的接口注入（Observable 路径）处理。
  */
 @Mixin(value = ThresholdSwitchBlockEntity.class, remap = false)
-public abstract class ThresholdSwitchTypeFixMixin {
+public abstract class ThresholdSwitchBlockEntityMixin {
 
     @Shadow
     private BlockPos getTargetPos() { return null; }
