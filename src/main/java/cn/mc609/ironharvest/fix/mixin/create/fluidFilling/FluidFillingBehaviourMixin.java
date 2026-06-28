@@ -8,18 +8,21 @@ import net.minecraft.core.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.simibubi.create.content.fluids.transfer.FluidFillingBehaviour;
 
 /**
- * 修复 fillInfinite=true 时软管滑轮填充到一定量后
- * 不放置源块、不消耗流体的死锁问题。
+ * 修复 fillInfinite=true 时软管滑轮填充到一定量后不放置源块、不消耗流体的死锁问题。
  *
- * 根因：continueValidation() 中 infinite=true 时调用了 reset()，
- * 清空了 tryDeposit() BFS 用的 queue，导致后续填充请求跳过 BFS 直接返回 false。
+ * continueValidation 中 frontier 搜索完成且 infinite=true 时会调用 reset()，
+ * 该操作会清空主 BFS 队列（queue）、visited、infinityCheck* 结构，
+ * 并将 infinite 置为 false、affectedArea 置为 null。
  *
- * 修复：fillInfinite=true 时只清理验证状态，不动 BFS 队列。
+ * 修复：在 reset() 调用前拦截。当 fillInfinite=true 时跳过完整的 reset()，
+ * 改为轻量清理（清空 infinityCheckVisited、重新播种 frontier、重置验证计时器），
+ * 保留主 BFS visited/queue 状态不被破坏。
  */
 @Mixin(value = FluidFillingBehaviour.class, remap = false)
 public abstract class FluidFillingBehaviourMixin {
@@ -30,27 +33,26 @@ public abstract class FluidFillingBehaviourMixin {
     @Shadow
     private Set<BlockPos> infinityCheckVisited;
 
-    /**
-     * 将 continueValidation() 中 infinite=true 分支的 reset()
-     * 替换为轻量清理——当 fillInfinite=true 时，
-     * 只清理质检员自己的验证状态，不动 BFS 队列。
-     */
-    @Redirect(
+    @Inject(
             method = "continueValidation",
             at = @At(
                     value = "INVOKE",
-                    target = "Lcom/simibubi/create/content/fluids/transfer/FluidFillingBehaviour;reset()V",
+                    target = "Lcom/simibubi/create/content/fluids/transfer/FluidFillingBehaviour;" +
+                            "reset()V",
                     ordinal = 1
             ),
-            require = 1
+            cancellable = true
     )
-    private void onInfiniteReset(FluidFillingBehaviour self) {
-        if (((FluidManipulationBehaviourInvoker)this).invokeFillInfinite()) {
+    private void onInfiniteReset(CallbackInfo ci) {
+        FluidManipulationBehaviourAccessor acc =
+                (FluidManipulationBehaviourAccessor) this;
+        if (acc.invokeFillInfinite()) {
             this.infinityCheckFrontier.clear();
             this.infinityCheckVisited.clear();
-            ((FluidManipulationBehaviourInvoker)this).invokeSetValidationTimer();
-        } else {
-            self.reset();
+            this.infinityCheckFrontier.add(
+                    new FluidManipulationBehaviour.BlockPosEntry(acc.getRootPos(), 0));
+            acc.invokeSetValidationTimer();
+            ci.cancel();
         }
     }
 }

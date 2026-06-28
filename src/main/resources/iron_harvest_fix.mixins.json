@@ -5,7 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "create.fluidFilling.FluidFillingBehaviourMixin",
-    "create.fluidFilling.FluidManipulationBehaviourInvoker",
+    "create.fluidFilling.FluidManipulationBehaviourAccessor",
     "sophisticatedbackpacks.thresholdSwitchObserve.BackpackBlockEntityMixin",
     "createStuffAdditions.blockPicker.BlockPickerRightclickedOnBlockProcedureMixin"
   ],
